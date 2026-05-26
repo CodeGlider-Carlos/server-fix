@@ -1,0 +1,239 @@
+/*
+Archivo: ez/pats/css/pats_admin_distribuidores_corporativos_fix.css
+Módulo: PATS · ADMINPATS Dashboard
+Propósito: Estilo para la sección inline de distribuidores corporativos.
+Tipo: CSS específico de PATS Admin.
+*/
+
+.pats-view-admin #patsDistribuidoresCorporativosSection {
+  margin: 24px 0 0;
+  padding: 24px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #ffffff, #f7f9fd);
+  border: 1px solid rgba(148, 163, 184, .26);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .14);
+}
+
+.pats-view-admin .pats-corpdist-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: 18px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.pats-view-admin .pats-corpdist-kicker {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, .10);
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .08em;
+}
+
+.pats-view-admin .pats-corpdist-head h2 {
+  margin: 10px 0 4px;
+  color: #10203d;
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 950;
+}
+
+.pats-view-admin .pats-corpdist-head p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.pats-view-admin .pats-corpdist-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.pats-view-admin .pats-corpdist-actions input {
+  min-height: 44px;
+  border: 1px solid rgba(100,116,139,.25);
+  border-radius: 16px;
+  padding: 11px 14px;
+  background: #f8fbff;
+  color: #0f172a;
+  font-weight: 850;
+  outline: none;
+}
+
+.pats-view-admin .pats-corpdist-actions button,
+.pats-view-admin .pats-corpdist-btn {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 14px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #13294a, #243364);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, .16);
+}
+
+.pats-view-admin .pats-corpdist-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.pats-view-admin .pats-corpdist-kpis article {
+  min-height: 98px;
+  padding: 16px;
+  border-radius: 20px;
+  background: radial-gradient(circle at 0 0, rgba(61,108,255,.24), transparent 34%), linear-gradient(135deg,#13294a,#20284f 62%,#141b3a);
+  color: #fff;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, .18);
+}
+
+.pats-view-admin .pats-corpdist-kpis span {
+  display: block;
+  color: rgba(226, 232, 240, .76);
+  font-size: 13px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.pats-view-admin .pats-corpdist-kpis strong {
+  display: block;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.pats-view-admin .pats-corpdist-list {
+  display: grid;
+  gap: 12px;
+}
+
+.pats-view-admin .pats-corpdist-card {
+  padding: 16px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #172243, #222d58 60%, #172044);
+  color: #e5edf8;
+  border: 1px solid rgba(148, 163, 184, .18);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, .16);
+}
+
+.pats-view-admin .pats-corpdist-card-main {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.1fr) minmax(0, 2fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.pats-view-admin .pats-corpdist-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  line-height: 1.15;
+  color: #fff;
+  font-weight: 950;
+}
+
+.pats-view-admin .pats-corpdist-card p {
+  margin: 3px 0;
+  color: rgba(226, 232, 240, .78);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.pats-view-admin .pats-corpdist-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pats-view-admin .pats-corpdist-metrics span {
+  min-width: 0;
+  padding: 11px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.pats-view-admin .pats-corpdist-metrics b {
+  display: block;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pats-view-admin .pats-corpdist-metrics small {
+  display: block;
+  margin-top: 5px;
+  color: rgba(191,204,232,.70);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.pats-view-admin .pats-corpdist-card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.pats-view-admin .pats-corpdist-muted {
+  color: rgba(191,204,232,.70);
+  font-size: 13px;
+  font-weight: 900;
+  padding: 10px 0;
+}
+
+.pats-view-admin .pats-corpdist-empty {
+  padding: 32px 18px;
+  border-radius: 20px;
+  background: #f8fbff;
+  border: 1px dashed rgba(100,116,139,.25);
+  color: #64748b;
+  text-align: center;
+  font-weight: 900;
+}
+
+@media (max-width: 1100px) {
+  .pats-view-admin .pats-corpdist-head,
+  .pats-view-admin .pats-corpdist-card-main {
+    grid-template-columns: 1fr;
+  }
+
+  .pats-view-admin .pats-corpdist-kpis,
+  .pats-view-admin .pats-corpdist-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pats-view-admin .pats-corpdist-card-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .pats-view-admin #patsDistribuidoresCorporativosSection {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .pats-view-admin .pats-corpdist-actions,
+  .pats-view-admin .pats-corpdist-kpis,
+  .pats-view-admin .pats-corpdist-metrics {
+    grid-template-columns: 1fr;
+  }
+}

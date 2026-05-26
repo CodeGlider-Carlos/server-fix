@@ -1,0 +1,68 @@
+/*
+Archivo: ez/pats/css/pats_directos_cards_fix.css
+Módulo: PATS · PATS directos vendidos
+Propósito: Refuerzo visual específico para #patsDirectosVendidosSection con paginación.
+Tipo: CSS específico de PATS.
+*/
+#patsDirectosVendidosSection .pats-directos-pager {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-top: 16px !important;
+  padding: 12px !important;
+  border-radius: 18px !important;
+  background: rgba(15, 23, 42, .04) !important;
+  border: 1px solid rgba(148, 163, 184, .22) !important;
+}
+
+#patsDirectosVendidosSection .pats-directos-pager__group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+}
+
+#patsDirectosVendidosSection .pats-directos-pager button {
+  border: 0 !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  background: #172243 !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, .16) !important;
+}
+
+#patsDirectosVendidosSection .pats-directos-pager button:disabled {
+  opacity: .45 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+
+#patsDirectosVendidosSection .pats-directos-page-info {
+  color: #334155 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+#patsDirectosVendidosSection .pats-directos-perpage {
+  border: 1px solid rgba(100,116,139,.25) !important;
+  border-radius: 12px !important;
+  padding: 9px 10px !important;
+  background: #fff !important;
+  color: #0f172a !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+@media (max-width: 720px) {
+  #patsDirectosVendidosSection .pats-directos-pager {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+  #patsDirectosVendidosSection .pats-directos-pager__group {
+    justify-content: center !important;
+  }
+}

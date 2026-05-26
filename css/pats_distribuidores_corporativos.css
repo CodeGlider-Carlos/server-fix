@@ -1,0 +1,213 @@
+/*
+ez/pats/css/pats_distribuidores_corporativos.css
+Módulo: PATS
+Propósito: Estilos de la vista de distribuidores corporativos ADMINPATS.
+Responsabilidad: Mejorar lectura de KPIs, filtros y tarjetas de distribuidores directos.
+Conexiones: distribuidores_corporativos.php.
+Tipo: CSS específico de PATS.
+*/
+
+.pats-distcorp-filters {
+  align-items: end;
+}
+
+.pats-field--button .pats-chip {
+  width: 100%;
+  min-height: 44px;
+  justify-content: center;
+}
+
+.pats-distcorp-summary {
+  margin-bottom: 18px;
+}
+
+.pats-distcorp-list-card {
+  overflow: hidden;
+}
+
+.pats-distcorp-list-head p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.pats-distcorp-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.distcorp-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid rgba(148, 163, 184, .22);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.94), rgba(241,245,249,.96));
+  box-shadow: 0 18px 34px rgba(15, 23, 42, .08);
+  padding: 18px;
+}
+
+.distcorp-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0f766e, #2563eb, #7c3aed);
+}
+
+.distcorp-card__top {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.distcorp-card__eyebrow {
+  display: inline-flex;
+  margin-bottom: 6px;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.distcorp-card h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.distcorp-card p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.distcorp-status {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.distcorp-status.is-ok {
+  color: #065f46;
+  background: rgba(16, 185, 129, .14);
+}
+
+.distcorp-status.is-warn {
+  color: #92400e;
+  background: rgba(245, 158, 11, .18);
+}
+
+.distcorp-status.is-muted {
+  color: #475569;
+  background: rgba(148, 163, 184, .18);
+}
+
+.distcorp-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.distcorp-card__meta span,
+.distcorp-mini span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: #334155;
+  background: rgba(226, 232, 240, .72);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.distcorp-card__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.distcorp-card__grid div {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #111827, #1e293b);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.distcorp-card__grid small {
+  display: block;
+  color: rgba(226, 232, 240, .74);
+  font-size: 11px;
+  line-height: 1.2;
+  margin-bottom: 5px;
+}
+
+.distcorp-card__grid strong {
+  display: block;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.distcorp-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.distcorp-mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.distcorp-open {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 820px) {
+  .pats-distcorp-list {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .distcorp-card__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .distcorp-card__foot,
+  .distcorp-card__top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .distcorp-open {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .distcorp-card__grid {
+    grid-template-columns: 1fr;
+  }
+}

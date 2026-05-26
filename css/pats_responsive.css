@@ -1,0 +1,42 @@
+@media (max-width: 1180px){
+  .pats-kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media (max-width: 980px){
+  .pats-hero,
+  .pats-grid--admin,
+  .pats-grid--franquicia,
+  .pats-grid--distribuidor,
+  .pats-chart-row,
+  .pats-ranking-row,
+  .pats-guide__grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width: 760px){
+  .pats-filters{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .pats-kpis{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width: 560px){
+  .pats-title{
+    font-size:28px;
+  }
+
+  .pats-filters{
+    grid-template-columns:1fr;
+  }
+
+  .pats-card__head--between{
+    flex-direction:column;
+    align-items:stretch;
+  }
+}
