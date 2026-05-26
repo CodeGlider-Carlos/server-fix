@@ -173,11 +173,13 @@ try {
         psi_json(['ok' => false, 'error' => 'Stripe no está configurado. Falta STRIPE_SECRET_KEY válido.'], 500);
     }
 
-    $frecuencia = psi_upper($_POST['frecuencia'] ?? 'MENSUAL');
-    $montoOrden = psi_num($_POST['monto_orden'] ?? 0);
-    $correo     = strtolower(psi_clean($_POST['correo'] ?? $_POST['correo_usuario_pats'] ?? ''));
-    $nombre     = psi_clean($_POST['nombre'] ?? $_POST['nombre_usuario'] ?? '');
-    $intentKey  = preg_replace('/[^a-zA-Z0-9_\-]/', '', psi_clean($_POST['intent_key'] ?? ''));
+    $frecuencia  = psi_upper($_POST['frecuencia'] ?? 'MENSUAL');
+    $montoOrden  = psi_num($_POST['monto_orden'] ?? 0);
+    $correo      = strtolower(psi_clean($_POST['correo'] ?? $_POST['correo_usuario_pats'] ?? ''));
+    $nombre      = psi_clean($_POST['nombre'] ?? $_POST['nombre_usuario'] ?? '');
+    $intentKey   = preg_replace('/[^a-zA-Z0-9_\-]/', '', psi_clean($_POST['intent_key'] ?? ''));
+    $metodoPago  = in_array(psi_upper($_POST['metodo_pago'] ?? ''), ['OXXO', 'TARJETA']) ? psi_upper($_POST['metodo_pago']) : 'TARJETA';
+    $domiciliado = (int)($_POST['domiciliado'] ?? 0) === 1;
 
     if ($montoOrden <= 0) {
         psi_json(['ok' => false, 'error' => 'Monto inválido para el pago.'], 422);
@@ -203,24 +205,27 @@ try {
         $currency = 'mxn';
     }
 
-    $metadata = [
-        'sistema'    => 'PATS',
-        'flujo'      => 'ALTA_PATS_PUBLICA',
-        'frecuencia' => $frecuencia,
-        'correo'     => $correo,
+    $params = [
+        'amount'               => $amountCents,
+        'currency'             => $currency,
+        'description'          => 'Alta PATS ' . ($frecuencia ?: 'MENSUAL'),
+        'metadata[sistema]'    => 'PATS',
+        'metadata[flujo]'      => 'ALTA_PATS_PUBLICA',
+        'metadata[frecuencia]' => $frecuencia,
+        'metadata[correo]'     => $correo,
+        'metadata[metodo]'     => $metodoPago,
     ];
 
-    $params = [
-        'amount' => $amountCents,
-        'currency' => $currency,
-        'description' => 'Alta PATS ' . ($frecuencia ?: 'MENSUAL'),
-        'metadata[sistema]' => $metadata['sistema'],
-        'metadata[flujo]' => $metadata['flujo'],
-        'metadata[frecuencia]' => $metadata['frecuencia'],
-        'metadata[correo]' => $metadata['correo'],
-        'automatic_payment_methods[enabled]' => 'true',
-        'payment_method_options[card][installments][enabled]' => 'true',
-    ];
+    if ($metodoPago === 'OXXO') {
+        $params['payment_method_types[]'] = 'oxxo';
+        $params['payment_method_options[oxxo][expires_after_days]'] = '3';
+    } else {
+        $params['automatic_payment_methods[enabled]'] = 'true';
+        $params['payment_method_options[card][installments][enabled]'] = 'true';
+        if ($domiciliado) {
+            $params['setup_future_usage'] = 'off_session';
+        }
+    }
 
     if ($correo !== '') {
         $params['receipt_email'] = $correo;
@@ -251,6 +256,8 @@ try {
         'amount_mxn'       => $montoOrden,
         'currency'         => $currency,
         'available_plans'  => $availablePlans,
+        'metodo_pago'      => $metodoPago,
+        'domiciliado'      => $domiciliado ? 1 : 0,
     ]);
 } catch (Throwable $e) {
     psi_json([

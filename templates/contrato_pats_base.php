@@ -26,6 +26,7 @@ $anexoId = $mx ? 'Identificación oficial de “EL AFILIADO”' : 'Identificaci�
 $anexoFiscal = $mx ? 'Constancia de Situación Fiscal de “EL AFILIADO”, si aplica' : 'No aplicable salvo que declare RFC mexicano';
 $curpAnexoTexto = $mx ? 'Clave Única de Registro de Población' : 'No aplicable por nacionalidad extranjera/no mexicana';
 $firmanteNombre = $data['nombre_firmante'] ?: 'Pendiente de firma';
+$firmaRepresentanteBase64 = (string)($data['prestador_firma_base64'] ?? '');
 $nombreAfiliado = $data['afiliado_nombre_completo'] ?: 'Pendiente';
 $domAfiliado = $data['afiliado_domicilio_completo'] ?: 'Pendiente';
 $beneficiarioDirecto = strtoupper((string)($data['beneficiario_directo'] ?? 'SI')) === 'NO' ? 'NO' : 'SI';
@@ -69,7 +70,7 @@ $beneficiarioDirecto = strtoupper((string)($data['beneficiario_directo'] ?? 'SI'
   </table>
 
   <div class="sign-grid">
-    <div class="sign-box"><div class="line"></div><strong>“EL PRESTADOR”</strong><br><?= $e($data['prestador_razon_social']) ?><br>Representada por <?= $e($data['prestador_representante']) ?></div>
+    <div class=”sign-box”><?php if ($firmaRepresentanteBase64): ?><img class=”signature-img” src=”<?= $firmaRepresentanteBase64 ?>” alt=”Firma representante legal”><?php else: ?><div class=”line”></div><?php endif; ?><strong>”EL PRESTADOR”</strong><br><?= $e($data['prestador_razon_social']) ?><br>Representada por <?= $e($data['prestador_representante']) ?></div>
     <div class="sign-box"><?php if (!empty($data['firma_afiliado_base64'])): ?><img class="signature-img" src="<?= $e($data['firma_afiliado_base64']) ?>" alt="Firma digital"><?php else: ?><div class="line"></div><?php endif; ?><strong>“<?= $e($firmanteLabel) ?>”</strong><br><?= $e($firmanteNombre) ?><br><span class="small"><?= $requiereResponsable ? 'Firma como responsable de '.$e($nombreAfiliado) : 'La persona física señalada en el Apartado 5.- de la Carátula' ?></span></div>
   </div>
 
@@ -174,7 +175,7 @@ $beneficiarioDirecto = strtoupper((string)($data['beneficiario_directo'] ?? 'SI'
   <p>Enteradas “LAS PARTES” del contenido y alcance del presente contrato, y entendidas de los derechos y obligaciones que contraen, firman el presente instrumento, incluyendo sus anexos, manifestando que no medió error, dolo, mala fe, violencia o lesión, ni vicio del consentimiento alguno, en la Ciudad de <?= $e($data['ciudad_firma']) ?>, Estado de <?= $e($data['estado_firma']) ?>, reconociendo que la fecha de firma es <?= $e($data['fecha_firma_larga']) ?>.</p>
 
   <div class="sign-grid">
-    <div class="sign-box"><div class="line"></div><strong>“EL PRESTADOR”</strong><br><?= $e($data['prestador_razon_social']) ?><br>Representada por <?= $e($data['prestador_representante']) ?></div>
+    <div class=”sign-box”><?php if ($firmaRepresentanteBase64): ?><img class=”signature-img” src=”<?= $firmaRepresentanteBase64 ?>” alt=”Firma representante legal”><?php else: ?><div class=”line”></div><?php endif; ?><strong>”EL PRESTADOR”</strong><br><?= $e($data['prestador_razon_social']) ?><br>Representada por <?= $e($data['prestador_representante']) ?></div>
     <div class="sign-box"><?php if (!empty($data['firma_afiliado_base64'])): ?><img class="signature-img" src="<?= $e($data['firma_afiliado_base64']) ?>" alt="Firma digital"><?php else: ?><div class="line"></div><?php endif; ?><strong>“<?= $e($firmanteLabel) ?>”</strong><br><?= $e($firmanteNombre) ?></div>
   </div>
 

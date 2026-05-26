@@ -156,6 +156,13 @@ if (!function_exists('pats_render_contract_html')) {
     $template = __DIR__ . '/../templates/contrato_pats_base.php';
     if (!is_file($template)) throw new RuntimeException('No existe la plantilla base del contrato PATS');
     $data = pats_contract_build_data($payload);
+
+    /* Firma del representante legal — se lee del disco y se embebe como data URI */
+    $_firmaPath = __DIR__ . '/../assets/firma.jpeg';
+    $data['prestador_firma_base64'] = is_file($_firmaPath)
+      ? 'data:image/jpeg;base64,' . base64_encode((string)file_get_contents($_firmaPath))
+      : '';
+
     ob_start(); require $template; return (string)ob_get_clean();
   }
 }

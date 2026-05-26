@@ -84,6 +84,10 @@ if (!in_array($adminrol, $rolesAdmin, true) && !in_array($rolapp, $rolesAdmin, t
           <button type="button" class="pats-chip pats-chip--action" id="btnGenerarLinkFranquicia">
             🔗— Generar link de alta FRANQUICIA
           </button>
+
+          <button type="button" class="pats-chip pats-chip--action" id="btnHistorialPagos">
+            📋 Ver historial de pagos
+          </button>
         </div>
       </div>
     </section>
@@ -383,18 +387,21 @@ window.PATS_CONTEXT = {
 const btnLink = document.getElementById('btnGenerarLinkDistribucion');
 if (btnLink) {
   btnLink.addEventListener('click', () => {
-    const url = new URL('https://50d.com.mx/50D/EZHS/ez/patsfin/distribucion_links.php', window.location.href);
-    url.searchParams.set('id_franquicia', 0);
-    window.open(url.toString(), '_blank');
+    window.open('generacion_links.php?tipo=distribuidor', '_blank');
   });
 }
 
 const btnLinkFran = document.getElementById('btnGenerarLinkFranquicia');
 if (btnLinkFran) {
   btnLinkFran.addEventListener('click', () => {
-    const url = new URL('https://50d.com.mx/50D/EZHS/ez/patsfin/franquicia_links.php', window.location.href);
-    url.searchParams.set('id_franquicia', 0);
-    window.open(url.toString(), '_blank');
+    window.open('generacion_links.php?tipo=franquicia', '_blank');
+  });
+}
+
+const btnHistorial = document.getElementById('btnHistorialPagos');
+if (btnHistorial) {
+  btnHistorial.addEventListener('click', () => {
+    window.open('historial_pagos.php', '_blank');
   });
 }
 </script>

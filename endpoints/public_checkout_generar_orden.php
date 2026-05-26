@@ -361,19 +361,30 @@ function ppg_verify_stripe_payment_intent(string $paymentIntentId, float $montoO
     $secret
   );
 
-  if (($intent['status'] ?? '') !== 'succeeded') {
-    throw new RuntimeException('El pago no está confirmado en Stripe. Estado actual: ' . (string)($intent['status'] ?? 'desconocido'));
+  $intentStatus = (string)($intent['status'] ?? '');
+  $isOxxo = (($intent['payment_method_types'][0] ?? '') === 'oxxo')
+         || (($intent['metadata']['metodo'] ?? '') === 'OXXO');
+
+  if ($isOxxo) {
+    if (!in_array($intentStatus, ['requires_action', 'succeeded'], true)) {
+      throw new RuntimeException('El pago OXXO no está en estado válido. Estado actual: ' . $intentStatus);
+    }
+  } else {
+    if ($intentStatus !== 'succeeded') {
+      throw new RuntimeException('El pago no está confirmado en Stripe. Estado actual: ' . $intentStatus);
+    }
   }
 
-  $amountPaid = round(((float)($intent['amount_received'] ?? $intent['amount'] ?? 0)) / 100, 2);
-  $currency = strtoupper((string)($intent['currency'] ?? ''));
+  $amountRef  = $isOxxo ? (float)($intent['amount'] ?? 0) : (float)($intent['amount_received'] ?? $intent['amount'] ?? 0);
+  $amountPaid = round($amountRef / 100, 2);
+  $currency   = strtoupper((string)($intent['currency'] ?? ''));
   $expectedCurrency = strtoupper(trim($moneda ?: 'MXN'));
 
   if ($currency !== strtolower($expectedCurrency) && $currency !== $expectedCurrency) {
     throw new RuntimeException('La moneda del pago en Stripe no coincide con la orden.');
   }
 
-  if (abs($amountPaid - $montoOrden) > 1.00) {
+  if (!$isOxxo && abs($amountPaid - $montoOrden) > 1.00) {
     throw new RuntimeException('El monto pagado en Stripe (' . number_format($amountPaid, 2, '.', '') . ') no coincide con la orden (' . number_format($montoOrden, 2, '.', '') . ').');
   }
 
@@ -384,13 +395,19 @@ function ppg_verify_stripe_payment_intent(string $paymentIntentId, float $montoO
     $chargeId = (string)$intent['charges']['data'][0]['id'];
   }
 
+  $oxxoDetails = $intent['next_action']['oxxo_display_details'] ?? [];
+
   return [
-    'id' => (string)($intent['id'] ?? $paymentIntentId),
-    'status' => (string)($intent['status'] ?? ''),
-    'amount_paid' => $amountPaid,
-    'currency' => $currency,
-    'latest_charge' => $chargeId,
-    'raw' => $intent,
+    'id'             => (string)($intent['id'] ?? $paymentIntentId),
+    'status'         => $intentStatus,
+    'is_oxxo'        => $isOxxo,
+    'amount_paid'    => $amountPaid,
+    'currency'       => $currency,
+    'latest_charge'  => $chargeId,
+    'oxxo_number'    => (string)($oxxoDetails['number'] ?? ''),
+    'oxxo_voucher'   => (string)($oxxoDetails['hosted_voucher_url'] ?? ''),
+    'oxxo_expires'   => isset($oxxoDetails['expires_after']) ? date('Y-m-d H:i:s', (int)$oxxoDetails['expires_after']) : '',
+    'raw'            => $intent,
   ];
 }
 
@@ -995,7 +1012,13 @@ if ($ordenExistente) {
 $referenciaPago = ppg_build_ref();
 $folioOrden = ppg_build_folio();
 $proveedorPasarela = 'STRIPE';
-$stripeChargeId = (string)($stripePago['latest_charge'] ?? '');
+$stripeChargeId    = (string)($stripePago['latest_charge'] ?? '');
+$isOxxoPago        = (bool)($stripePago['is_oxxo'] ?? false);
+$metodoPago        = $isOxxoPago ? 'OXXO' : strtoupper(ppg_clean($_POST['metodo_pago'] ?? 'TARJETA'));
+$domiciliadoActivo = ($metodoPago === 'TARJETA' && !empty($_POST['domiciliado'])) ? 1 : 0;
+$oxxoNumeroRef     = (string)($stripePago['oxxo_number'] ?? ppg_clean($_POST['oxxo_numero_referencia'] ?? ''));
+$oxxoVoucherUrl    = (string)($stripePago['oxxo_voucher'] ?? ppg_clean($_POST['oxxo_voucher_url'] ?? ''));
+$oxxoExpiresAt     = (string)($stripePago['oxxo_expires'] ?? ppg_clean($_POST['oxxo_expires_at'] ?? ''));
 
 $fullName = trim($nombre . ' ' . $apellidoPa . ' ' . $apellidoMa);
 $tutorFullName = trim($tutorNombre . ' ' . $tutorApellidoPa . ' ' . $tutorApellidoMa);
@@ -1673,6 +1696,9 @@ try {
   ];
 
   /* 2) Insertar orden base */
+  $estatusOrden = $isOxxoPago ? 'PENDIENTE_OXXO' : 'PAGO_CONFIRMADO';
+  $estatusPago  = $isOxxoPago ? 'PENDIENTE'       : 'CONFIRMADO';
+
   $stmt = $cx->prepare("
     INSERT INTO pats_ordenes_pago
     (
@@ -1726,7 +1752,7 @@ try {
       ?, ?, ?, ?,
       ?, ?, 'ALTA_PATS',
       ?, ?, ?, ?, ?, ?, ?,
-      'PAGO_CONFIRMADO', 'CONFIRMADO',
+      '{$estatusOrden}', '{$estatusPago}',
       ?, ?, ?, ?, ?, ?, '{}',
       NOW(), NOW(),
       0, NULL, 0,
@@ -1775,6 +1801,26 @@ try {
   }
   $idOrden = (int)$stmt->insert_id;
   $stmt->close();
+
+  /* 2b) Si es pago OXXO, insertar en pats_oxxo_pendientes */
+  if ($isOxxoPago) {
+    $stmtOx = $cx->prepare("
+      INSERT INTO pats_oxxo_pendientes
+        (id_orden, payment_intent_id, oxxo_numero_referencia, oxxo_voucher_url,
+         oxxo_expires_at, monto, correo, nombre_cliente, estatus, payload_stripe_json, created_at, updated_at)
+      VALUES
+        (?, ?, ?, ?, ?, ?, ?, ?, 'PENDIENTE', '{}', NOW(), NOW())
+    ");
+    if ($stmtOx) {
+      $oxxoExpiresAtDb = $oxxoExpiresAt !== '' ? $oxxoExpiresAt : null;
+      $stmtOx->bind_param('issssdss',
+        $idOrden, $stripePaymentIntentId, $oxxoNumeroRef, $oxxoVoucherUrl,
+        $oxxoExpiresAtDb, $montoOrden, $correoOrden, $nombreFirmante
+      );
+      $stmtOx->execute();
+      $stmtOx->close();
+    }
+  }
 
   /* 3) Crear pasaporte real después de pago confirmado */
  $idPasaporteGenerado = ppg_insertar_pasaporte_confirmado($cx, [
@@ -2218,18 +2264,22 @@ $payloadFormularioJson = json_encode([
         : '';
 
       $mailOk = pats_send_pasaporte_confirmacion_email([
-        'to' => $correoOrden,
-        'nombre_firmante' => $nombreFirmante,
-        'nombre_paciente' => $fullName,
-        'id_pasaporte' => $idPasaporteGenerado,
-        'referencia_pago' => $referenciaPago,
-        'folio_orden' => $folioOrden,
-        'monto' => $montoOrden,
-        'moneda' => $moneda,
-        'frecuencia' => $frecuencia,
-        'usuario' => $correoOrden,
-        'reset_url' => $mailResetUrl,
-        'tipo_acceso' => $tipoAcceso,
+        'to'                       => $correoOrden,
+        'nombre_firmante'          => $nombreFirmante,
+        'nombre_paciente'          => $fullName,
+        'id_pasaporte'             => $idPasaporteGenerado,
+        'referencia_pago'          => $referenciaPago,
+        'folio_orden'              => $folioOrden,
+        'monto'                    => $montoOrden,
+        'moneda'                   => $moneda,
+        'frecuencia'               => $frecuencia,
+        'usuario'                  => $correoOrden,
+        'reset_url'                => $mailResetUrl,
+        'tipo_acceso'              => $tipoAcceso,
+        'metodo_pago'              => $metodoPago,
+        'oxxo_voucher_url'         => $oxxoVoucherUrl,
+        'oxxo_numero_referencia'   => $oxxoNumeroRef,
+        'oxxo_expires_at'          => $oxxoExpiresAt,
       ]);
     }
   } catch (Throwable $mailEx) {

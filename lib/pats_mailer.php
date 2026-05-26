@@ -190,16 +190,22 @@ if (!function_exists('pats_send_pasaporte_confirmacion_email')) {
     $nombre = trim((string)($d['nombre_firmante'] ?? ''));
     $paciente = trim((string)($d['nombre_paciente'] ?? ''));
     $idPasaporte = (string)($d['id_pasaporte'] ?? '');
-    $referencia = (string)($d['referencia_pago'] ?? '');
-    $folio = (string)($d['folio_orden'] ?? '');
-    $monto = (float)($d['monto'] ?? 0);
-    $moneda = (string)($d['moneda'] ?? 'MXN');
-    $frecuencia = (string)($d['frecuencia'] ?? '');
-    $usuario = (string)($d['usuario'] ?? $to);
-    $resetUrl = (string)($d['reset_url'] ?? '');
-    $tipoAcceso = (string)($d['tipo_acceso'] ?? 'PACIENTE');
+    $referencia      = (string)($d['referencia_pago'] ?? '');
+    $folio           = (string)($d['folio_orden'] ?? '');
+    $monto           = (float)($d['monto'] ?? 0);
+    $moneda          = (string)($d['moneda'] ?? 'MXN');
+    $frecuencia      = (string)($d['frecuencia'] ?? '');
+    $usuario         = (string)($d['usuario'] ?? $to);
+    $resetUrl        = (string)($d['reset_url'] ?? '');
+    $tipoAcceso      = (string)($d['tipo_acceso'] ?? 'PACIENTE');
+    $metodoPago      = strtoupper((string)($d['metodo_pago'] ?? 'TARJETA'));
+    $oxxoVoucherUrl  = (string)($d['oxxo_voucher_url'] ?? '');
+    $oxxoNumeroRef   = (string)($d['oxxo_numero_referencia'] ?? '');
+    $oxxoExpiresAt   = (string)($d['oxxo_expires_at'] ?? '');
 
-    $subject = 'Tu Pasaporte PATS fue registrado';
+    $subject = $metodoPago === 'OXXO'
+      ? 'Tu ficha de pago OXXO · Pasaporte PATS'
+      : 'Tu Pasaporte PATS fue registrado';
 
     $safeNombre = htmlspecialchars($nombre !== '' ? $nombre : 'Hola', ENT_QUOTES, 'UTF-8');
     $safePaciente = htmlspecialchars($paciente, ENT_QUOTES, 'UTF-8');
@@ -210,6 +216,34 @@ if (!function_exists('pats_send_pasaporte_confirmacion_email')) {
     $safeMonto = htmlspecialchars('$' . number_format($monto, 2) . ' ' . $moneda, ENT_QUOTES, 'UTF-8');
     $safeFrecuencia = htmlspecialchars($frecuencia, ENT_QUOTES, 'UTF-8');
     $safeTipoAcceso = htmlspecialchars($tipoAcceso, ENT_QUOTES, 'UTF-8');
+
+    $oxxoHtml = '';
+    if ($metodoPago === 'OXXO') {
+      $safeOxxoNum     = htmlspecialchars($oxxoNumeroRef, ENT_QUOTES, 'UTF-8');
+      $safeOxxoExpires = $oxxoExpiresAt !== '' ? htmlspecialchars(date('d/m/Y H:i', strtotime($oxxoExpiresAt)), ENT_QUOTES, 'UTF-8') : '';
+      $oxxoBtnHtml = '';
+      if ($oxxoVoucherUrl !== '') {
+        $safeOxxoUrl = htmlspecialchars($oxxoVoucherUrl, ENT_QUOTES, 'UTF-8');
+        $oxxoBtnHtml = '<p style="margin:16px 0 0;">
+          <a href="' . $safeOxxoUrl . '" style="display:inline-block;background:#e63a1e;color:#fff;text-decoration:none;font-weight:800;padding:13px 20px;border-radius:14px;">
+            Ver ficha de pago OXXO
+          </a>
+        </p>';
+      }
+      $oxxoHtml = '
+      <div style="margin:20px 0 0;background:#fff8f5;border:2px solid #e63a1e;border-radius:14px;padding:18px 20px;">
+        <div style="font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#e63a1e;margin-bottom:10px;">Pago OXXO · Ficha de pago</div>
+        <p style="margin:0 0 10px;font-size:13px;color:#374151;line-height:1.55;">
+          Paga en cualquier tienda OXXO con la siguiente referencia o abriendo la ficha digital:
+        </p>
+        ' . ($safeOxxoNum !== '' ? '<div style="font-size:22px;font-weight:900;letter-spacing:.12em;color:#b91c1c;background:#fff;border:1px solid #fca5a5;border-radius:8px;padding:10px 16px;text-align:center;margin:10px 0;">' . $safeOxxoNum . '</div>' : '') . '
+        ' . ($safeOxxoExpires !== '' ? '<p style="margin:8px 0 0;font-size:12px;color:#60708f;">Vence el: <strong>' . $safeOxxoExpires . '</strong></p>' : '') . '
+        <p style="margin:8px 0 0;font-size:12px;color:#60708f;">
+          Tu pasaporte quedará <strong>pendiente</strong> hasta que confirmemos el pago (máx. 24 h hábiles).
+        </p>
+        ' . $oxxoBtnHtml . '
+      </div>';
+    }
 
     $btnHtml = '';
     if ($resetUrl !== '') {
@@ -253,6 +287,8 @@ if (!function_exists('pats_send_pasaporte_confirmacion_email')) {
         Si el paciente es menor o dependiente, el responsable será quien administre el acceso.
       </p>
 
+      ' . $oxxoHtml . '
+
       ' . $btnHtml . '
 
       <p style="margin:24px 0 0;color:#60708f;font-size:12px;line-height:1.45;">
@@ -274,6 +310,20 @@ if (!function_exists('pats_send_pasaporte_confirmacion_email')) {
 
     if ($resetUrl !== '') {
       $text .= "\nDefine tu contraseña aquí: {$resetUrl}\n";
+    }
+
+    if ($metodoPago === 'OXXO') {
+      $text .= "\n--- Ficha de pago OXXO ---\n";
+      if ($oxxoNumeroRef !== '') {
+        $text .= "Referencia OXXO: {$oxxoNumeroRef}\n";
+      }
+      if ($oxxoExpiresAt !== '') {
+        $text .= "Vence: " . date('d/m/Y H:i', strtotime($oxxoExpiresAt)) . "\n";
+      }
+      if ($oxxoVoucherUrl !== '') {
+        $text .= "Ficha digital: {$oxxoVoucherUrl}\n";
+      }
+      $text .= "Tu pasaporte quedará pendiente hasta confirmar el pago.\n";
     }
 
     return pats_smtp_send_mail($to, $subject, $html, $text);

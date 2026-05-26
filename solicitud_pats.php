@@ -2393,23 +2393,10 @@ svg {
             <section class="pp-panel" data-step-panel="6">
               <div style="display:flex;flex-direction:column;gap:20px;">
 
-                <!-- Contrato -->
+                <!-- Firma — va primero para que el contrato se renderice con la firma incluida -->
                 <div>
-                  <div class="label" style="margin-bottom:10px;"><i class="mdi mdi-file-document-outline"></i> Contrato de pasaporte</div>
-                  <div class="contract-box">
-                    <div class="contract-banner">
-                      <i class="mdi mdi-information-outline"></i>
-                      Lee el contrato completo antes de firmar.
-                    </div>
-                    <div id="contractPreview" class="contract-view">
-                      <div class="contract-empty">El contrato se cargará con tus datos al llegar a este paso.</div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Firma -->
-                <div>
-                  <div class="label" style="margin-bottom:10px;"><i class="mdi mdi-draw-pen"></i> Firma digital <span class="label__req">*</span></div>
+                  <div class="label" style="margin-bottom:6px;"><i class="mdi mdi-draw-pen"></i> Tu firma digital <span class="label__req">*</span></div>
+                  <p style="font-size:12px;color:#60708f;margin:0 0 10px;">Firma aquí con el mouse o tu dedo. El contrato se actualizará automáticamente con tu firma.</p>
                   <div class="sig-wrap">
                     <div class="sig-top">
                       <div class="sig-top__lbl">
@@ -2421,6 +2408,20 @@ svg {
                       </button>
                     </div>
                     <canvas id="signaturePad" class="sig-canvas"></canvas>
+                  </div>
+                </div>
+
+                <!-- Contrato — se renderiza debajo con los datos del formulario y la firma del cliente -->
+                <div>
+                  <div class="label" style="margin-bottom:10px;"><i class="mdi mdi-file-document-outline"></i> Contrato de pasaporte</div>
+                  <div class="contract-box">
+                    <div class="contract-banner">
+                      <i class="mdi mdi-information-outline"></i>
+                      Lee el contrato completo. Tu firma aparece en el documento una vez que la ingresas arriba.
+                    </div>
+                    <div id="contractPreview" class="contract-view">
+                      <div class="contract-empty">El contrato se cargará con tus datos al llegar a este paso.</div>
+                    </div>
                   </div>
                 </div>
 
@@ -2478,10 +2479,30 @@ svg {
                   </div>
                 </div>
 
-                <!-- Pago con tarjeta · Stripe -->
+                <!-- Método de pago · selector -->
                 <div>
                   <div class="label" style="margin-bottom:10px;">
-                    <i class="mdi mdi-credit-card-lock-outline"></i> Pago con tarjeta <span class="label__req">*</span>
+                    <i class="mdi mdi-cash-multiple"></i> Método de pago <span class="label__req">*</span>
+                  </div>
+                  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <label id="lblMetodoTarjeta" style="flex:1;min-width:140px;cursor:pointer;border:2px solid var(--blue-mid);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px;background:rgba(37,99,235,.07);transition:.2s;">
+                      <input type="radio" name="metodo_pago" id="metodoTarjeta" value="TARJETA" checked style="accent-color:var(--blue-mid);">
+                      <span><i class="mdi mdi-credit-card-outline" style="font-size:20px;vertical-align:middle;"></i> <strong>Tarjeta</strong></span>
+                    </label>
+                    <label id="lblMetodoOxxo" style="flex:1;min-width:140px;cursor:pointer;border:2px solid #ccc;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px;background:#fff;transition:.2s;">
+                      <input type="radio" name="metodo_pago" id="metodoOxxo" value="OXXO" style="accent-color:#e63a1e;">
+                      <span style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:18px;font-weight:900;color:#e63a1e;letter-spacing:.03em;">OXXO</span>
+                        <strong>Efectivo</strong>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Pago con tarjeta · Stripe -->
+                <div id="seccionTarjeta">
+                  <div class="label" style="margin-bottom:10px;">
+                    <i class="mdi mdi-credit-card-lock-outline"></i> Datos de tarjeta <span class="label__req">*</span>
                   </div>
                   <div class="stripe-box" id="stripeBox">
                     <div class="stripe-box__head">
@@ -2506,6 +2527,32 @@ svg {
                     <button type="button" class="btn msi-confirm" id="btnConfirmarMSI">
                       <i class="mdi mdi-lock-check-outline"></i> Confirmar y pagar
                     </button>
+                  </div>
+
+                  <!-- Domiciliación -->
+                  <label style="display:flex;align-items:flex-start;gap:10px;margin-top:14px;cursor:pointer;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:#f8faff;">
+                    <input type="checkbox" id="chkDomiciliado" name="domiciliado" value="1" style="margin-top:2px;accent-color:var(--blue-mid);">
+                    <span style="font-size:13px;line-height:1.5;color:#374151;">
+                      <strong>Activar domiciliación automática</strong><br>
+                      <span style="color:#60708f;">Permite que los pagos futuros de tu pasaporte PATS se cobren automáticamente con esta tarjeta.</span>
+                    </span>
+                  </label>
+                </div>
+
+                <!-- Pago con OXXO -->
+                <div id="seccionOxxo" style="display:none;">
+                  <div style="background:#fff8f5;border:2px solid #e63a1e;border-radius:14px;padding:18px 20px;">
+                    <div style="font-weight:800;font-size:15px;color:#e63a1e;margin-bottom:8px;">
+                      <span style="font-size:18px;font-weight:900;">OXXO</span> · Pago en efectivo
+                    </div>
+                    <p style="margin:0 0 10px;font-size:13px;color:#374151;line-height:1.55;">
+                      Al continuar recibirás una <strong>ficha de pago OXXO</strong> en tu correo. Tienes <strong>3 días</strong> para pagar en cualquier tienda OXXO. Tu pasaporte quedará pendiente hasta que confirmemos el pago.
+                    </p>
+                    <ul style="margin:0;padding-left:18px;font-size:13px;color:#60708f;line-height:1.7;">
+                      <li>El monto mínimo para pago OXXO es <strong>$10 MXN</strong>.</li>
+                      <li>El pago puede tardar hasta 24 h en verse reflejado.</li>
+                      <li>No se aceptan divisas distintas a MXN.</li>
+                    </ul>
                   </div>
                 </div>
 
@@ -3589,7 +3636,7 @@ window.PATS_PUBLIC_CFG = {
     const getXY = (ev) => { const r = signPad.getBoundingClientRect(); const t = ev.touches?.[0]??null; return { x:(t?t.clientX:ev.clientX)-r.left, y:(t?t.clientY:ev.clientY)-r.top }; };
     const start = (ev) => { ev.preventDefault(); signDrawing=true; signHasStroke=true; const {x,y}=getXY(ev); signCtx.beginPath(); signCtx.moveTo(x,y); };
     const move  = (ev) => { if(!signDrawing) return; ev.preventDefault(); const {x,y}=getXY(ev); signCtx.lineTo(x,y); signCtx.stroke(); };
-    const end   = (ev) => { if(!signDrawing) return; ev.preventDefault(); signDrawing=false; $('#firma_base64').value=signPad.toDataURL('image/png'); };
+    const end   = (ev) => { if(!signDrawing) return; ev.preventDefault(); signDrawing=false; $('#firma_base64').value=signPad.toDataURL('image/png'); queueContractPreview(); };
     signPad.addEventListener('mousedown',  start);
     signPad.addEventListener('mousemove',  move);
     window.addEventListener('mouseup',     end);
@@ -3602,7 +3649,9 @@ window.PATS_PUBLIC_CFG = {
     if (!signCtx || !signPad) return;
     signCtx.clearRect(0,0,signPad.width,signPad.height);
     signHasStroke = false; $('#firma_base64').value = '';
+    contractPreviewLastKey = '';
     setupSignaturePad(true);
+    queueContractPreview();
   }
 
   // ── File inputs ────────────────────────────────────────────────────────────
@@ -3819,6 +3868,36 @@ window.PATS_PUBLIC_CFG = {
   async function validateCurrentStep() {
     const fn = [null,validateStep1,validateStep2,validateStep3,validateStep4,validateStep5,validateStep6][currentStep];
     return fn ? await fn() : true;
+  }
+
+  // ── Método de pago · selector ───────────────────────────────────────────────
+
+  function getMetodoPago() {
+    return (document.querySelector('input[name="metodo_pago"]:checked')?.value || 'TARJETA').toUpperCase();
+  }
+
+  function syncMetodoPago() {
+    const metodo = getMetodoPago();
+    const secTarjeta = $('#seccionTarjeta');
+    const secOxxo    = $('#seccionOxxo');
+    const lblTarjeta = $('#lblMetodoTarjeta');
+    const lblOxxo    = $('#lblMetodoOxxo');
+
+    if (secTarjeta) secTarjeta.style.display = metodo === 'TARJETA' ? '' : 'none';
+    if (secOxxo)    secOxxo.style.display    = metodo === 'OXXO'    ? '' : 'none';
+
+    if (lblTarjeta) {
+      lblTarjeta.style.borderColor  = metodo === 'TARJETA' ? 'var(--blue-mid)' : '#ccc';
+      lblTarjeta.style.background   = metodo === 'TARJETA' ? 'rgba(37,99,235,.07)' : '#fff';
+    }
+    if (lblOxxo) {
+      lblOxxo.style.borderColor = metodo === 'OXXO' ? '#e63a1e' : '#ccc';
+      lblOxxo.style.background  = metodo === 'OXXO' ? '#fff8f5' : '#fff';
+    }
+
+    if (metodo === 'TARJETA' && !stripeReady) {
+      initStripe();
+    }
   }
 
   // ── Stripe ─────────────────────────────────────────────────────────────────
@@ -4058,6 +4137,74 @@ window.PATS_PUBLIC_CFG = {
     return paymentIntentId;
   }
 
+  async function crearYConfirmarPagoOxxo(fd) {
+    if (!stripe) {
+      stripe = window.Stripe(CFG.stripe_pk);
+    }
+
+    setStripeError('');
+
+    const correoOk = await validarCorreoDisponible(true);
+    if (!correoOk) {
+      throw new Error('Este correo ya tiene un Pasaporte PATS registrado.');
+    }
+
+    const intentRes = await fetch(CFG.url_stripe_intent, {
+      method: 'POST',
+      headers: { 'X-CSRF-TOKEN': CFG.csrf },
+      body: fd
+    });
+
+    const intentText = await intentRes.text();
+    let intentData = {};
+    try { intentData = intentText ? JSON.parse(intentText) : {}; } catch (_) {}
+
+    if (!intentRes.ok || intentData.ok === false) {
+      throw new Error(intentData.error || 'No fue posible preparar el pago OXXO.');
+    }
+
+    const clientSecret = intentData.client_secret || '';
+    if (!clientSecret) throw new Error('Stripe no devolvió client_secret para OXXO.');
+
+    const nombrePago  = [
+      $('#nombre_usuario')?.value || '',
+      $('#apellido_pa')?.value    || '',
+      $('#apellido_ma')?.value    || ''
+    ].join(' ').replace(/\s+/g, ' ').trim();
+    const correoPago  = ($('#hidden_correo_usuario_pats')?.value || $('#login_correo')?.value || '').trim();
+
+    const result = await stripe.confirmOxxoPayment(clientSecret, {
+      payment_method: {
+        billing_details: {
+          name: nombrePago || 'Cliente PATS',
+          email: correoPago || undefined
+        }
+      }
+    });
+
+    if (result.error) {
+      throw new Error(result.error.message || 'No fue posible generar la ficha OXXO.');
+    }
+
+    const pi = result.paymentIntent || {};
+    const paymentIntentId = pi.id || intentData.payment_intent_id || '';
+    if (!paymentIntentId) throw new Error('No se recibió el ID del pago OXXO.');
+
+    const oxxoDetails = pi.next_action?.oxxo_display_details || {};
+    const oxxoNumero  = oxxoDetails.number || '';
+    const oxxoVoucher = oxxoDetails.hosted_voucher_url || '';
+    const oxxoExpires = oxxoDetails.expires_after || '';
+
+    const hidden = $('#stripe_payment_intent_id');
+    if (hidden) hidden.value = paymentIntentId;
+    fd.set('stripe_payment_intent_id', paymentIntentId);
+    fd.set('oxxo_numero_referencia', oxxoNumero);
+    fd.set('oxxo_voucher_url', oxxoVoucher);
+    fd.set('oxxo_expires_at', oxxoExpires ? new Date(oxxoExpires * 1000).toISOString() : '');
+
+    return { paymentIntentId, oxxoNumero, oxxoVoucher };
+  }
+
   // ── Pre-upload ──────────────────────────────────────────────────────────────
 
   async function preUploadField(fieldName, fileInput) {
@@ -4138,11 +4285,19 @@ window.PATS_PUBLIC_CFG = {
       }
 
       /*
-        1) Confirmar pago en Stripe.
+        1) Confirmar pago en Stripe (tarjeta u OXXO).
         2) Adjuntar stripe_payment_intent_id al FormData.
         3) Enviar al endpoint final para que guarde orden, contrato y documentos.
       */
-      await crearYConfirmarPagoStripe(fd);
+      const metodo = getMetodoPago();
+      fd.set('metodo_pago', metodo);
+
+      if (metodo === 'OXXO') {
+        btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Generando ficha OXXO...';
+        await crearYConfirmarPagoOxxo(fd);
+      } else {
+        await crearYConfirmarPagoStripe(fd);
+      }
 
       btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Guardando registro...';
 
@@ -4244,7 +4399,8 @@ window.PATS_PUBLIC_CFG = {
     bloquearAutocompleteNavegador();
     syncSteps(); syncEmpresa(); syncMonto();
     bindFileInputs(); bindManualPhoto();
-    initStripe();
+    syncMetodoPago();
+    $$('input[name="metodo_pago"]').forEach(r => r.addEventListener('change', syncMetodoPago));
     syncIdentityFromLogin(); syncEstadoDesdeAcronimo(); syncAdultosMayores(); syncModoFirma(); syncNacionalidadDocumentos(); syncDomicilioPorNacionalidad(); setupSignaturePad(); syncAdultosMayores(); syncModoFirma();
 
     $('#btnCloseModal')?.addEventListener('click', hideModal);
